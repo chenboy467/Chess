@@ -11,6 +11,7 @@ class Chess:
     pieces = {'white': [], 'black': []}
     labels = []
     tiles = []
+    selected_piece = None
 
     def __init__(self, window):
         # Window Properties
@@ -44,9 +45,6 @@ class Chess:
             ['' for x in range(8)] for y in range(8)]
 
         # Create frames as tiles on the main canvas
-        # TODO: Fix frame deformation
-        # TODO: Change frames to canvases
-        # TODO: Add labels for rows and columns
         for x in range(8):
             for y in range(8):
                 self.tiles[x][y] = Frame(
@@ -58,6 +56,8 @@ class Chess:
                 self.labels[x][y] = Label(
                     self.tiles[x][y], text='    ', fg='red', bg=self.tiles[x][y].cget('bg'))
                 self.labels[x][y].grid()
+                self.labels[x][y].bind(
+                    '<Button-1>', functools.partial(self.select, (x, y)))
         numbers_frame = Frame(self.canvas, bg='white', height=60, width=60)
         numbers_frame.grid(row=0, column=0, rowspan=9, sticky='ew')
         for x in range(8):
@@ -71,35 +71,61 @@ class Chess:
 
     # TODO: Replace with a json file
     def create_pieces(self):
-        # Add a new piece
-        self.pieces['white'].append(Pieces.Pawn(True, (0, 1)))
-        self.pieces['white'].append(Pieces.Pawn(True, (1, 1)))
-        self.pieces['white'].append(Pieces.Pawn(True, (2, 1)))
-        self.pieces['white'].append(Pieces.Pawn(True, (3, 1)))
-        self.pieces['white'].append(Pieces.Pawn(True, (4, 1)))
-        self.pieces['white'].append(Pieces.Pawn(True, (5, 1)))
-        self.pieces['white'].append(Pieces.Pawn(True, (6, 1)))
-        self.pieces['white'].append(Pieces.Pawn(True, (7, 1)))
+        # Pawns
+        for x in range(8):
+            self.pieces['white'].append(Pieces.Pawn(True, (x, 1)))
+            self.pieces['black'].append(Pieces.Pawn(False, (x, 6)))
+
+        # White Pieces
+        self.pieces['white'].append(Pieces.Knight(True, (1, 0)))
+        self.pieces['white'].append(Pieces.Knight(True, (6, 0)))
+        self.pieces['white'].append(Pieces.Bishop(True, (2, 0)))
+        self.pieces['white'].append(Pieces.Bishop(True, (5, 0)))
+        self.pieces['white'].append(Pieces.Rook(True, (0, 0)))
+        self.pieces['white'].append(Pieces.Rook(True, (7, 0)))
+        self.pieces['white'].append(Pieces.Queen(True, (3, 0)))
+        self.pieces['white'].append(Pieces.King(False, (4, 0)))
+
+        # Black Pieces
+        self.pieces['black'].append(Pieces.Knight(False, (1, 7)))
+        self.pieces['black'].append(Pieces.Knight(False, (6, 7)))
+        self.pieces['black'].append(Pieces.Bishop(False, (2, 7)))
+        self.pieces['black'].append(Pieces.Bishop(False, (5, 7)))
+        self.pieces['black'].append(Pieces.Rook(False, (0, 7)))
+        self.pieces['black'].append(Pieces.Rook(False, (7, 7)))
+        self.pieces['black'].append(Pieces.Queen(True, (3, 7)))
+        self.pieces['black'].append(Pieces.King(False, (4, 7)))
+
+        # TODO: Move this to end of turn
+        # Show pieces
         for x in self.pieces['white']:
             self.labels[x.pos[0]][x.pos[1]].config(
-                text=' ' + x.display + ' ')
-        self.pieces['black'].append(Pieces.Pawn(False, (0, 6)))
-        self.pieces['black'].append(Pieces.Pawn(False, (1, 6)))
-        self.pieces['black'].append(Pieces.Pawn(False, (2, 6)))
-        self.pieces['black'].append(Pieces.Pawn(False, (3, 6)))
-        self.pieces['black'].append(Pieces.Pawn(False, (4, 6)))
-        self.pieces['black'].append(Pieces.Pawn(False, (5, 6)))
-        self.pieces['black'].append(Pieces.Pawn(False, (6, 6)))
-        self.pieces['black'].append(Pieces.Pawn(False, (7, 6)))
+                text=' ' + x.display + ' ', fg='silver')
         for x in self.pieces['black']:
             self.labels[x.pos[0]][x.pos[1]].config(
-                text=' ' + x.display + ' ')
+                text=' ' + x.display + ' ', fg='brown')
 
     def select(self, pos, event):
-        print(str(pos))
         for x in self.pieces['white']:
             if x.pos == pos:
-                print('HEllo')
+                self.selected_piece = pos
+                self.draw()
+
+    def draw(self):
+        for x in self.labels:
+            for y in x:
+                # TODO: Fix select
+                y.config(text='     ')
+                y.config(bg=('yellow', ('black', 'white')[
+                         (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2])[[self.labels.index(x), self.labels[self.labels.index(x)].index(y)] == self.selected_piece])
+        # if self.selected_piece not None:
+        #    self.labels[self.selected_piece[0]][self.selected_piece[1]].config(bg='yellow')
+        for x in self.pieces['white']:
+            self.labels[x.pos[0]][x.pos[1]].config(
+                text=' ' + x.display + ' ', fg='silver')
+        for x in self.pieces['black']:
+            self.labels[x.pos[0]][x.pos[1]].config(
+                text=' ' + x.display + ' ', fg='brown')
 
 
 root = Tk()

@@ -26,3 +26,28 @@ class Pawn(Piece):
 
     def move(self):
         super().move()'''
+
+
+class Knight(Piece):
+    name = 'Knight'
+    display = 'N'
+
+
+class Bishop(Piece):
+    name = 'Bishop'
+    display = 'B'
+
+
+class Rook(Piece):
+    name = 'Rook'
+    display = 'R'
+
+
+class Queen(Piece):
+    name = 'Queen'
+    display = 'Q'
+
+
+class King(Piece):
+    name = 'King'
+    display = 'K'
