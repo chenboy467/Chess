@@ -106,18 +106,42 @@ class Chess:
                 text=' ' + x.display + ' ', fg='brown')
 
     def select(self, pos, event):
+        if self.selected_piece != None:
+            print(self.selected_piece.getAvailableMoves(
+                self.tiles))
+            for x in self.selected_piece.getAvailableMoves(self.tiles):
+                if pos == x:
+                    # Move selected piece
+                    self.selected_piece.pos = pos
+                    self.selected_piece = None
+                    self.draw()
+                    print('moved')
+                    return
+
         for x in self.pieces['white']:
             if x.pos == pos:
-                self.selected_piece = pos
-                self.draw()
+                if self.selected_piece != x:
+                    '''    # Deselect piece if it has already been selected
+                        self.selected_piece == None
+                    else:'''
+                    # Set new selected piece
+                    self.selected_piece = x
+                    print('selected')
+                else:
+                    self.selected_piece = None
+                    print('deselected')
+        self.draw()
 
     def draw(self):
         for x in self.labels:
             for y in x:
-                # TODO: Fix select
-                y.config(text='     ')
-                y.config(bg=('yellow', ('black', 'white')[
-                         (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2])[[self.labels.index(x), self.labels[self.labels.index(x)].index(y)] == self.selected_piece])
+                y.config(text='    ')
+                if self.selected_piece != None:
+                    y.config(bg=(('black', 'white')[
+                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2], 'yellow')[((self.labels.index(x), x.index(y)) == self.selected_piece.pos) or ((self.labels.index(x), x.index(y)) in self.selected_piece.getAvailableMoves(self.tiles))])
+                else:
+                    y.config(bg=('black', 'white')[
+                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2])
         # if self.selected_piece not None:
         #    self.labels[self.selected_piece[0]][self.selected_piece[1]].config(bg='yellow')
         for x in self.pieces['white']:

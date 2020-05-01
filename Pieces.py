@@ -1,13 +1,14 @@
 class Piece:
     name = 'Piece'
     display = ''
+    moves = []
 
     def __init__(self, isWhite, pos):
         self.isWhite = isWhite
         self.pos = pos
         pass
 
-    def show(self):
+    def getAvailableMoves(self):
         pass
 
     def move(self, posX, posY):
@@ -26,6 +27,20 @@ class Pawn(Piece):
 
     def move(self):
         super().move()'''
+
+    def getAvailableMoves(self, tilesList):
+        availableMoves = set()
+        for x in tilesList:
+            for y in x:
+                if self.isWhite:
+                    if ((tilesList.index(x), x.index(
+                            y) - 1) == self.pos) or ((tilesList.index(x), x.index(y) - 2) == self.pos and self.pos[1] == 1):
+                        availableMoves.add((tilesList.index(x), x.index(y)))
+                else:
+                    if ((tilesList.index(x), x.index(
+                            y) + 1) == self.pos) or ((tilesList.index(x), x.index(y) + 2) == self.pos and self.pos[1] == 6):
+                        availableMoves.add((tilesList.index(x), x.index(y)))
+        return availableMoves
 
 
 class Knight(Piece):
