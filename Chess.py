@@ -107,15 +107,13 @@ class Chess:
 
     def select(self, pos, event):
         if self.selected_piece != None:
-            print(self.selected_piece.getAvailableMoves(
-                self.tiles))
-            for x in self.selected_piece.getAvailableMoves(self.tiles):
+            for x in self.selected_piece.getAvailableMoves(self.tiles, self.pieces):
                 if pos == x:
                     # Move selected piece
-                    self.selected_piece.pos = pos
+                    self.selected_piece.move(pos, self.pieces)
+                    # self.selected_piece.pos = pos
                     self.selected_piece = None
                     self.draw()
-                    print('moved')
                     return
 
         for x in self.pieces['white']:
@@ -126,10 +124,18 @@ class Chess:
                     else:'''
                     # Set new selected piece
                     self.selected_piece = x
-                    print('selected')
                 else:
                     self.selected_piece = None
-                    print('deselected')
+        for x in self.pieces['black']:
+            if x.pos == pos:
+                if self.selected_piece != x:
+                    '''    # Deselect piece if it has already been selected
+                        self.selected_piece == None
+                    else:'''
+                    # Set new selected piece
+                    self.selected_piece = x
+                else:
+                    self.selected_piece = None
         self.draw()
 
     def draw(self):
@@ -138,18 +144,20 @@ class Chess:
                 y.config(text='    ')
                 if self.selected_piece != None:
                     y.config(bg=(('black', 'white')[
-                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2], 'yellow')[((self.labels.index(x), x.index(y)) == self.selected_piece.pos) or ((self.labels.index(x), x.index(y)) in self.selected_piece.getAvailableMoves(self.tiles))])
+                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2], 'yellow')[((self.labels.index(x), x.index(y)) == self.selected_piece.pos) or ((self.labels.index(x), x.index(y)) in self.selected_piece.getAvailableMoves(self.tiles, self.pieces))])
                 else:
                     y.config(bg=('black', 'white')[
                         (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2])
         # if self.selected_piece not None:
         #    self.labels[self.selected_piece[0]][self.selected_piece[1]].config(bg='yellow')
         for x in self.pieces['white']:
-            self.labels[x.pos[0]][x.pos[1]].config(
-                text=' ' + x.display + ' ', fg='silver')
+            if x.pos != None:
+                self.labels[x.pos[0]][x.pos[1]].config(
+                    text=' ' + x.display + ' ', fg='silver')
         for x in self.pieces['black']:
-            self.labels[x.pos[0]][x.pos[1]].config(
-                text=' ' + x.display + ' ', fg='brown')
+            if x.pos != None:
+                self.labels[x.pos[0]][x.pos[1]].config(
+                    text=' ' + x.display + ' ', fg='brown')
 
 
 root = Tk()
