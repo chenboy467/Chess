@@ -84,7 +84,7 @@ class Chess:
         self.pieces['white'].append(Pieces.Rook(True, (0, 0)))
         self.pieces['white'].append(Pieces.Rook(True, (7, 0)))
         self.pieces['white'].append(Pieces.Queen(True, (3, 0)))
-        self.pieces['white'].append(Pieces.King(False, (4, 0)))
+        self.pieces['white'].append(Pieces.King(True, (4, 0)))
 
         # Black Pieces
         self.pieces['black'].append(Pieces.Knight(False, (1, 7)))
@@ -93,7 +93,7 @@ class Chess:
         self.pieces['black'].append(Pieces.Bishop(False, (5, 7)))
         self.pieces['black'].append(Pieces.Rook(False, (0, 7)))
         self.pieces['black'].append(Pieces.Rook(False, (7, 7)))
-        self.pieces['black'].append(Pieces.Queen(True, (3, 7)))
+        self.pieces['black'].append(Pieces.Queen(False, (3, 7)))
         self.pieces['black'].append(Pieces.King(False, (4, 7)))
 
         # TODO: Move this to end of turn
@@ -106,7 +106,7 @@ class Chess:
                 text=' ' + x.display + ' ', fg='brown')
 
     def select(self, pos, event):
-        if self.selected_piece != None:
+        if self.selected_piece != None and self.selected_piece.pos != pos:
             for x in self.selected_piece.getAvailableMoves(self.tiles, self.pieces):
                 if pos == x:
                     # Move selected piece
