@@ -166,6 +166,11 @@ class Bishop(Piece):
                     availableMoves.add((tilesList.index(x), x.index(y)))
         toRemove = set()
         # Check for pieces in the way
+        '''for x in availableMoves:
+            if piecesGridDict[x] != None and x != self.pos:
+                for y in availableMoves:
+                    if ((y[0] - self.pos[0]) / (piecesGridDict[x].pos[0] - self.pos[0]) >= 1 and (y[1] - self.pos[1]) / (piecesGridDict[x].pos[1] - self.pos[1]) >= 1) and (y[0] - self.pos[0]) / (piecesGridDict[x].pos[0] - self.pos[0]) == (y[1] - self.pos[1]) / (piecesGridDict[x].pos[1] - self.pos[1]):
+                        toRemove.add(x)'''
         for i in piecesDict[('black', 'white')[self.isWhite]]:
             if i.pos[0] != self.pos[0] and i.pos[1] != self.pos[1]:
                 # Add tiles that are behind the roadblock piece to toRemove
@@ -189,14 +194,14 @@ class Bishop(Piece):
             toRemove = set()
         # Check for pieces in the way
         for i in piecesDict['white']:
-            if i.pos[0] != self.pos[0] and i.pos[1] != self.pos[1]:
+            if i.pos[0] != self.pos[0] and i.pos[1] != self.pos[1] and (i.name != 'King' or self.isWhite):
                 # Add tiles that are behind the roadblock piece to toRemove
-                for x in availableMoves:
+                for x in attackingTiles:
                     if ((x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) >= 1 and (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) >= 1) and (x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) == (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]):
                         toRemove.add(x)
         for i in piecesDict['black']:
-            if i.pos[0] != self.pos[0] and i.pos[1] != self.pos[1]:
-                for x in availableMoves:
+            if i.pos[0] != self.pos[0] and i.pos[1] != self.pos[1] and (i.name != 'King' or not self.isWhite):
+                for x in attackingTiles:
                     if ((x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) >= 1 and (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) > 1) and (x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) == (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]):
                         toRemove.add(x)
         return attackingTiles - toRemove
@@ -246,9 +251,9 @@ class Rook(Piece):
             toRemove = set()
         # Check for pieces in the way
         for i in piecesDict['white']:
-            if i.pos != self.pos and (i.pos[0] == self.pos[0] or i.pos[1] == self.pos[1]):
+            if i.pos != self.pos and (i.pos[0] == self.pos[0] or i.pos[1] == self.pos[1]) and (i.name != 'King' or self.isWhite):
                 # Add tiles that are behind the roadblock piece to toRemove
-                for x in availableMoves:
+                for x in attackingTiles:
                     if i.pos[0] == self.pos[0]:
                         if ((x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) >= 1):
                             toRemove.add(x)
@@ -256,9 +261,9 @@ class Rook(Piece):
                         if ((x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) >= 1):
                             toRemove.add(x)
         for i in piecesDict['black']:
-            if i.pos != self.pos and (i.pos[0] == self.pos[0] or i.pos[1] == self.pos[1]):
+            if i.pos != self.pos and (i.pos[0] == self.pos[0] or i.pos[1] == self.pos[1]) and (i.name != 'King' or not self.isWhite):
                 # Add tiles that are behind the roadblock piece to toRemove
-                for x in availableMoves:
+                for x in attackingTiles:
                     if i.pos[0] == self.pos[0]:
                         if ((x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) >= 1):
                             toRemove.add(x)
@@ -323,6 +328,51 @@ class Queen(Piece):
         return (availableMovesDiagonal | availableMovesStraight) - toRemoveDiagonal - toRemoveStraight
 
     # TODO: Queen's getAttackingTiles()
+    def getAttackingTiles(self, tilesList, piecesDict):
+        attackingTilesDiagonal = set()
+        attackingTilesStraight = set()
+        for x in range(1, 7):
+            attackingTilesDiagonal.add((self.pos[0] - x, self.pos[1] - x))
+            attackingTilesDiagonal.add((self.pos[0] - x, self.pos[1] + x))
+            attackingTilesDiagonal.add((self.pos[0] + x, self.pos[1] - x))
+            attackingTilesDiagonal.add((self.pos[0] + x, self.pos[1] + x))
+            attackingTilesStraight.add((self.pos[0] - x, self.pos[1]))
+            attackingTilesStraight.add((self.pos[0] + x, self.pos[1]))
+            attackingTilesStraight.add((self.pos[0], self.pos[1] - x))
+            attackingTilesStraight.add((self.pos[0], self.pos[1] + x))
+        toRemoveDiagonal = set()
+        toRemoveStraight = set()
+        # Check for pieces in the way
+        for i in piecesDict['white']:
+            if i.pos[0] != self.pos[0] and i.pos[1] != self.pos[1] and (i.name != 'King' or self.isWhite):
+                # Add tiles that are behind the roadblock piece to toRemove
+                for x in attackingTilesDiagonal:
+                    if ((x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) >= 1 and (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) >= 1) and (x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) == (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]):
+                        toRemoveDiagonal.add(x)
+            if i.pos != self.pos and (i.pos[0] == self.pos[0] or i.pos[1] == self.pos[1]) and (i.name != 'King' or self.isWhite):
+                # Add tiles that are behind the roadblock piece to toRemove
+                for x in attackingTilesStraight:
+                    if i.pos[0] == self.pos[0]:
+                        if ((x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) >= 1):
+                            toRemoveStraight.add(x)
+                    if i.pos[1] == self.pos[1]:
+                        if ((x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) >= 1):
+                            toRemoveStraight.add(x)
+        for i in piecesDict['black']:
+            if i.pos[0] != self.pos[0] and i.pos[1] != self.pos[1] and (i.name != 'King' or not self.isWhite):
+                for x in attackingTilesDiagonal:
+                    if ((x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) >= 1 and (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) > 1) and (x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) == (x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]):
+                        toRemoveDiagonal.add(x)
+            if i.pos != self.pos and (i.pos[0] == self.pos[0] or i.pos[1] == self.pos[1]) and (i.name != 'King' or not self.isWhite):
+                # Add tiles that are behind the roadblock piece to toRemove
+                for x in attackingTilesStraight:
+                    if i.pos[0] == self.pos[0]:
+                        if ((x[1] - self.pos[1]) / (i.pos[1] - self.pos[1]) >= 1):
+                            toRemoveStraight.add(x)
+                    if i.pos[1] == self.pos[1]:
+                        if ((x[0] - self.pos[0]) / (i.pos[0] - self.pos[0]) >= 1):
+                            toRemoveStraight.add(x)
+        return (attackingTilesDiagonal | attackingTilesStraight) - toRemoveDiagonal - toRemoveStraight
 
 
 class King(Piece):
@@ -342,13 +392,11 @@ class King(Piece):
                     availableMoves.remove(i.pos)
         checkTiles = set()
         for i in piecesDict[('white', 'black')[self.isWhite]]:
+            attackedTiles = i.getAttackingTiles(tilesList, piecesDict)
             for x in availableMoves:
-                if i.name == 'King':
-                    if abs(x[0] - i.pos[0]) <= 1 and abs(x[1] - i.pos[1]) <= 1:
-                        checkTiles.add(x)
-                else:
-                    if x in i.getAvailableMoves(tilesList, piecesDict):
-                        checkTiles.add(x)
+                if x in attackedTiles:
+                    checkTiles.add(x)
+            availableMoves -= checkTiles
         return availableMoves - checkTiles
 
     def getAttackingTiles(self, tilesList, piecesDict):

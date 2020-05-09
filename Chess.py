@@ -9,6 +9,11 @@ class Chess:
 
     # Tiles
     pieces = {'white': [], 'black': []}
+    pieces_grid = {}
+    for x in range(8):
+        for y in range(8):
+            # .clear will remove all elements in a dictionary
+            pieces_grid[(x, y)] = None
     labels = []
     tiles = []
     selected_piece = None
@@ -99,9 +104,11 @@ class Chess:
         # TODO: Move this to end of turn
         # Show pieces
         for x in self.pieces['white']:
+            self.pieces_grid[x.pos] = x
             self.labels[x.pos[0]][x.pos[1]].config(
                 text=' ' + x.display + ' ', fg='silver')
         for x in self.pieces['black']:
+            self.pieces_grid[x.pos] = x
             self.labels[x.pos[0]][x.pos[1]].config(
                 text=' ' + x.display + ' ', fg='brown')
 
@@ -111,6 +118,11 @@ class Chess:
                 if pos == x:
                     # Move selected piece
                     self.selected_piece.move(pos, self.pieces)
+                    self.pieces_grid.clear()
+                    for x in self.pieces['white']:
+                        self.pieces_grid[x.pos] = x
+                    for x in self.pieces['black']:
+                        self.pieces_grid[x.pos] = x
                     # self.selected_piece.pos = pos
                     self.selected_piece = None
                     self.draw()
