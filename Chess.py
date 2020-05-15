@@ -10,10 +10,10 @@ class Chess:
     # Tiles
     pieces = {'white': [], 'black': []}
     pieces_grid = {}
-    for x in range(8):
+    '''for x in range(8):
         for y in range(8):
             # .clear will remove all elements in a dictionary
-            pieces_grid[(x, y)] = None
+            pieces_grid[(x, y)] = None'''
     labels = []
     tiles = []
     selected_piece = None
@@ -76,6 +76,10 @@ class Chess:
 
     # TODO: Replace with a json file
     def create_pieces(self):
+        # Kings
+        self.pieces['white'].append(Pieces.King(True, (4, 0)))
+        self.pieces['black'].append(Pieces.King(False, (4, 7)))
+
         # Pawns
         for x in range(8):
             self.pieces['white'].append(Pieces.Pawn(True, (x, 1)))
@@ -89,7 +93,6 @@ class Chess:
         self.pieces['white'].append(Pieces.Rook(True, (0, 0)))
         self.pieces['white'].append(Pieces.Rook(True, (7, 0)))
         self.pieces['white'].append(Pieces.Queen(True, (3, 0)))
-        self.pieces['white'].append(Pieces.King(True, (4, 0)))
 
         # Black Pieces
         self.pieces['black'].append(Pieces.Knight(False, (1, 7)))
@@ -99,7 +102,6 @@ class Chess:
         self.pieces['black'].append(Pieces.Rook(False, (0, 7)))
         self.pieces['black'].append(Pieces.Rook(False, (7, 7)))
         self.pieces['black'].append(Pieces.Queen(False, (3, 7)))
-        self.pieces['black'].append(Pieces.King(False, (4, 7)))
 
         # TODO: Move this to end of turn
         # Show pieces
@@ -114,7 +116,7 @@ class Chess:
 
     def select(self, pos, event):
         if self.selected_piece != None and self.selected_piece.pos != pos:
-            for x in self.selected_piece.getAvailableMoves(self.tiles, self.pieces):
+            for x in self.selected_piece.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid):
                 if pos == x:
                     # Move selected piece
                     self.selected_piece.move(pos, self.pieces)
@@ -156,7 +158,7 @@ class Chess:
                 y.config(text='    ')
                 if self.selected_piece != None:
                     y.config(bg=(('black', 'white')[
-                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2], 'yellow')[((self.labels.index(x), x.index(y)) == self.selected_piece.pos) or ((self.labels.index(x), x.index(y)) in self.selected_piece.getAvailableMoves(self.tiles, self.pieces))])
+                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2], 'yellow')[((self.labels.index(x), x.index(y)) == self.selected_piece.pos) or ((self.labels.index(x), x.index(y)) in self.selected_piece.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid))])
                 else:
                     y.config(bg=('black', 'white')[
                         (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2])
