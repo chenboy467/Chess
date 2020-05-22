@@ -17,6 +17,7 @@ class Chess:
     labels = []
     tiles = []
     selected_piece = None
+    checkedTiles = [[], []]
 
     def __init__(self, window):
         # Window Properties
@@ -116,16 +117,23 @@ class Chess:
 
     def select(self, pos, event):
         if self.selected_piece != None and self.selected_piece.pos != pos:
-            for x in self.selected_piece.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid):
+            for x in self.selected_piece.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid, self.checkedTiles[self.selected_piece.isWhite]):
                 if pos == x:
                     # Move selected piece
                     self.selected_piece.move(pos, self.pieces)
+                    self.updateCheck(True)
+                    self.updateCheck(False)
                     self.pieces_grid.clear()
-                    for x in self.pieces['white']:
-                        self.pieces_grid[x.pos] = x
-                    for x in self.pieces['black']:
-                        self.pieces_grid[x.pos] = x
+                    for y in self.pieces['white']:
+                        self.pieces_grid[y.pos] = y
+                    for y in self.pieces['black']:
+                        self.pieces_grid[y.pos] = y
                     # self.selected_piece.pos = pos
+                    if self.selected_piece.name == 'Pawn' and pos[1] == (0, 7)[self.selected_piece.isWhite]:
+                        self.pieces[('black', 'white')[self.selected_piece.isWhite]][self.pieces[('black', 'white')[self.selected_piece.isWhite]].index(self.selected_piece)] = Pieces.Queen(
+                            self.selected_piece.isWhite, pos)
+                        self.pieces_grid[pos] = Pieces.Queen(
+                            self.selected_piece.isWhite, pos)
                     self.selected_piece = None
                     self.draw()
                     return
@@ -158,7 +166,7 @@ class Chess:
                 y.config(text='    ')
                 if self.selected_piece != None:
                     y.config(bg=(('black', 'white')[
-                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2], 'yellow')[((self.labels.index(x), x.index(y)) == self.selected_piece.pos) or ((self.labels.index(x), x.index(y)) in self.selected_piece.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid))])
+                        (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2], 'yellow')[((self.labels.index(x), x.index(y)) == self.selected_piece.pos) or ((self.labels.index(x), x.index(y)) in self.selected_piece.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid, self.checkedTiles[self.selected_piece.isWhite]))])
                 else:
                     y.config(bg=('black', 'white')[
                         (self.labels.index(x)+self.labels[self.labels.index(x)].index(y)) % 2])
@@ -168,10 +176,24 @@ class Chess:
             if x.pos != None:
                 self.labels[x.pos[0]][x.pos[1]].config(
                     text=' ' + x.display + ' ', fg='silver')
+            if x.underCheck:
+                self.labels[x.pos[0]][x.pos[1]].config(bg='red')
         for x in self.pieces['black']:
             if x.pos != None:
                 self.labels[x.pos[0]][x.pos[1]].config(
                     text=' ' + x.display + ' ', fg='brown')
+            if x.underCheck:
+                self.labels[x.pos[0]][x.pos[1]].config(bg='red')
+
+    def updateCheck(self, isWhiteChecking):
+        self.pieces[('white', 'black')[isWhiteChecking]][0].underCheck = False
+        checkedTiles = set()
+        for i in self.pieces[('black', 'white')[isWhiteChecking]]:
+            checkedTiles |= i.getAttackingTiles(self.tiles, self.pieces)
+        if self.pieces[('white', 'black')[isWhiteChecking]][0].pos in checkedTiles:
+            self.pieces[('white', 'black')[isWhiteChecking]
+                        ][0].underCheck = True
+        self.checkedTiles[not isWhiteChecking] = checkedTiles
 
 
 root = Tk()
