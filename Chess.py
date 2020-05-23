@@ -18,6 +18,7 @@ class Chess:
     tiles = []
     selected_piece = None
     checkedTiles = [[], []]
+    isWhiteTurn = True
 
     def __init__(self, window):
         # Window Properties
@@ -74,6 +75,9 @@ class Chess:
         for x in range(8):
             Label(letters_frame, text=('a', 'b', 'c', 'd', 'e', 'f',
                                        'g', 'h')[x], fg='red', bg='white').grid(row=0, column=x, padx=4)
+        self.captured_pieces_listbox = Listbox(
+            self.window, yscrollcommand=Scrollbar.set)
+        self.captured_pieces_listbox.place(relx=0.5, rely=0.5, anchor=W)
 
     # TODO: Replace with a json file
     def create_pieces(self):
@@ -120,14 +124,21 @@ class Chess:
             for x in self.selected_piece.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid, self.checkedTiles[self.selected_piece.isWhite]):
                 if pos == x:
                     # Move selected piece
-                    self.selected_piece.move(pos, self.pieces)
+                    capturedPiece = self.selected_piece.move(pos, self.pieces)
+                    if capturedPiece != None:
+                        self.captured_pieces_listbox.insert(
+                            END, capturedPiece.display)
                     self.updateCheck(True)
                     self.updateCheck(False)
                     self.pieces_grid.clear()
                     for y in self.pieces['white']:
                         self.pieces_grid[y.pos] = y
+                        if y.name == 'Pawn' and y != self.selected_piece:
+                            y.enPassantCapturable = False
                     for y in self.pieces['black']:
                         self.pieces_grid[y.pos] = y
+                        if y.name == 'Pawn' and y != self.selected_piece:
+                            y.enPassantCapturable = False
                     # self.selected_piece.pos = pos
                     if self.selected_piece.name == 'Pawn' and pos[1] == (0, 7)[self.selected_piece.isWhite]:
                         self.pieces[('black', 'white')[self.selected_piece.isWhite]][self.pieces[('black', 'white')[self.selected_piece.isWhite]].index(self.selected_piece)] = Pieces.Queen(
@@ -135,6 +146,7 @@ class Chess:
                         self.pieces_grid[pos] = Pieces.Queen(
                             self.selected_piece.isWhite, pos)
                     self.selected_piece = None
+                    self.isWhiteTurn = not self.isWhiteTurn
                     self.draw()
                     return
 
@@ -145,6 +157,7 @@ class Chess:
                         self.selected_piece == None
                     else:'''
                     # Set new selected piece
+                    # if self.selected_piece != None and self.selected_piece.isWhite == self.isWhiteTurn:
                     self.selected_piece = x
                 else:
                     self.selected_piece = None
@@ -155,6 +168,7 @@ class Chess:
                         self.selected_piece == None
                     else:'''
                     # Set new selected piece
+                    # if self.selected_piece != None and self.selected_piece.isWhite == self.isWhiteTurn:
                     self.selected_piece = x
                 else:
                     self.selected_piece = None
@@ -186,16 +200,20 @@ class Chess:
                 self.labels[x.pos[0]][x.pos[1]].config(bg='red')
 
     def updateCheck(self, isWhiteChecking):
-        self.pieces[('white', 'black')[isWhiteChecking]][0].underCheck = False
+        self.pieces[('white', 'black')[isWhiteChecking]][0].underCheck = 0
         checkedTiles = set()
         for i in self.pieces[('black', 'white')[isWhiteChecking]]:
+            if self.pieces[('white', 'black')[isWhiteChecking]][0].pos in i.getAttackingTiles(self.tiles, self.pieces):
+                self.pieces[('white', 'black')[isWhiteChecking]
+                            ][0].underCheck += 1
             checkedTiles |= i.getAttackingTiles(self.tiles, self.pieces)
-        if self.pieces[('white', 'black')[isWhiteChecking]][0].pos in checkedTiles:
-            self.pieces[('white', 'black')[isWhiteChecking]
-                        ][0].underCheck = True
+        # if self.pieces[('white', 'black')[isWhiteChecking]][0].pos in checkedTiles:
         self.checkedTiles[not isWhiteChecking] = checkedTiles
 
 
 root = Tk()
 game_gui = Chess(root)
 root.mainloop()
+
+# TODO: Listbox horizontal
+# TODO: Turns
