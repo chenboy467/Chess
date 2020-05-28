@@ -18,13 +18,15 @@ class Chess:
     tiles = []
     selected_piece = None
     checkedTiles = [[], []]
+    capturedPieces = [[], []]
     isWhiteTurn = True
+    gameResult = None
 
     def __init__(self, window):
         # Window Properties
         self.window = window
         self.window.title('Chess')
-        self.window.geometry("1000x666".format(
+        self.window.geometry('1000x666'.format(
             self.window.winfo_screenwidth(), self.window.winfo_screenheight()))
         self.window.resizable(False, False)
         self.window.bind('<Escape>', self.toggle_fullscreen)
@@ -75,9 +77,13 @@ class Chess:
         for x in range(8):
             Label(letters_frame, text=('a', 'b', 'c', 'd', 'e', 'f',
                                        'g', 'h')[x], fg='red', bg='white').grid(row=0, column=x, padx=4)
-        self.captured_pieces_listbox = Listbox(
-            self.window, yscrollcommand=Scrollbar.set)
-        self.captured_pieces_listbox.place(relx=0.5, rely=0.5, anchor=W)
+        self.captured_pieces_frame = Frame(
+            self.window, height=120, width=300, bd=5)
+        self.captured_pieces_frame.place(relx=0.5, rely=0.5, anchor=W)
+        self.captured_pieces_labels = [Label(self.captured_pieces_frame, fg='brown'), Label(
+            self.captured_pieces_frame, fg='silver')]
+        self.captured_pieces_labels[0].pack(side=TOP, anchor=SW)
+        self.captured_pieces_labels[1].pack(side=BOTTOM, anchor=NW)
 
     # TODO: Replace with a json file
     def create_pieces(self):
@@ -88,23 +94,27 @@ class Chess:
         # Pawns
         for x in range(8):
             self.pieces['white'].append(Pieces.Pawn(True, (x, 1)))
-            self.pieces['black'].append(Pieces.Pawn(False, (x, 6)))
+            #self.pieces['black'].append(Pieces.Pawn(False, (x, 6)))
 
         # White Pieces
-        self.pieces['white'].append(Pieces.Knight(True, (1, 0)))
-        self.pieces['white'].append(Pieces.Knight(True, (6, 0)))
-        self.pieces['white'].append(Pieces.Bishop(True, (2, 0)))
+        # TODO: Move List
+        # TODO: Win Screen
+        # TODO: Resign and draw
+        # TODO: Clock
+        #self.pieces['white'].append(Pieces.Knight(True, (1, 0)))
+        #self.pieces['white'].append(Pieces.Knight(True, (6, 0)))
+        #self.pieces['white'].append(Pieces.Bishop(True, (2, 0)))
         self.pieces['white'].append(Pieces.Bishop(True, (5, 0)))
         self.pieces['white'].append(Pieces.Rook(True, (0, 0)))
-        self.pieces['white'].append(Pieces.Rook(True, (7, 0)))
+        #self.pieces['white'].append(Pieces.Rook(True, (7, 0)))
         self.pieces['white'].append(Pieces.Queen(True, (3, 0)))
 
         # Black Pieces
-        self.pieces['black'].append(Pieces.Knight(False, (1, 7)))
-        self.pieces['black'].append(Pieces.Knight(False, (6, 7)))
-        self.pieces['black'].append(Pieces.Bishop(False, (2, 7)))
+        #self.pieces['black'].append(Pieces.Knight(False, (1, 7)))
+        #self.pieces['black'].append(Pieces.Knight(False, (6, 7)))
+        #self.pieces['black'].append(Pieces.Bishop(False, (2, 7)))
         self.pieces['black'].append(Pieces.Bishop(False, (5, 7)))
-        self.pieces['black'].append(Pieces.Rook(False, (0, 7)))
+        #self.pieces['black'].append(Pieces.Rook(False, (0, 7)))
         self.pieces['black'].append(Pieces.Rook(False, (7, 7)))
         self.pieces['black'].append(Pieces.Queen(False, (3, 7)))
 
@@ -126,8 +136,8 @@ class Chess:
                     # Move selected piece
                     capturedPiece = self.selected_piece.move(pos, self.pieces)
                     if capturedPiece != None:
-                        self.captured_pieces_listbox.insert(
-                            END, capturedPiece.display)
+                        self.capturedPieces[capturedPiece.isWhite].append(
+                            capturedPiece.display)
                     self.updateCheck(True)
                     self.updateCheck(False)
                     self.pieces_grid.clear()
@@ -147,12 +157,15 @@ class Chess:
                             self.selected_piece.isWhite, pos)
                     self.selected_piece = None
                     self.isWhiteTurn = not self.isWhiteTurn
+                    self.gameResult = self.tryEndGame()
+                    if self.gameResult != None:
+                        print(self.gameResult)
                     self.draw()
                     return
 
         for x in self.pieces['white']:
             if x.pos == pos:
-                if self.selected_piece != x:
+                if self.selected_piece != x and self.isWhiteTurn:
                     '''    # Deselect piece if it has already been selected
                         self.selected_piece == None
                     else:'''
@@ -163,7 +176,7 @@ class Chess:
                     self.selected_piece = None
         for x in self.pieces['black']:
             if x.pos == pos:
-                if self.selected_piece != x:
+                if self.selected_piece != x and not self.isWhiteTurn:
                     '''    # Deselect piece if it has already been selected
                         self.selected_piece == None
                     else:'''
@@ -173,6 +186,36 @@ class Chess:
                 else:
                     self.selected_piece = None
         self.draw()
+
+    def tryEndGame(self):
+        if self.pieces['white'][0].underCheck > 0:
+            for x in self.pieces['white']:
+                if len(x.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid, self.checkedTiles[x.isWhite])) > 0:
+                    return
+            return -1
+        elif self.pieces['black'][0].underCheck > 0:
+            for x in self.pieces['black']:
+                if len(x.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid, self.checkedTiles[x.isWhite])) > 0:
+                    return
+            return 1
+        else:
+            piecesLeftWhite = []
+            piecesLeftBlack = []
+            for x in self.pieces['white']:
+                if x.name != 'King':
+                    piecesLeftWhite.append(x.display)
+            for x in self.pieces['black']:
+                if x.name != 'King':
+                    piecesLeftWhite.append(x.display)
+            if len(piecesLeftWhite) >= 2 or len(piecesLeftWhite) >= 2:
+                pass
+            else:
+                if ((len(piecesLeftWhite) == 0) or (piecesLeftWhite[0] != 'Q' and piecesLeftWhite[0] != 'R' and piecesLeftWhite[0] != 'P')) and ((len(piecesLeftWhite) == 0) or (piecesLeftBlack[0] != 'Q' and piecesLeftBlack[0] != 'R' and piecesLeftBlack[0] != 'P')):
+                    return 0
+            for x in self.pieces[('black', 'white')[self.isWhiteTurn]]:
+                if len(x.getAvailableMoves(self.tiles, self.pieces, self.pieces_grid, self.checkedTiles[x.isWhite])) > 0:
+                    return
+            return 0
 
     def draw(self):
         for x in self.labels:
@@ -198,6 +241,17 @@ class Chess:
                     text=' ' + x.display + ' ', fg='brown')
             if x.underCheck:
                 self.labels[x.pos[0]][x.pos[1]].config(bg='red')
+        self.captured_pieces_labels[0].config(text='')
+        self.captured_pieces_labels[1].config(text='')
+        for i in range(5):
+            for x in self.capturedPieces[0]:
+                if x == ('Q', 'R', 'B', 'N', 'P')[i]:
+                    self.captured_pieces_labels[0].config(
+                        text=self.captured_pieces_labels[0].cget('text') + ' ' + x)
+            for x in self.capturedPieces[1]:
+                if x == ('Q', 'R', 'B', 'N', 'P')[i]:
+                    self.captured_pieces_labels[1].config(
+                        text=self.captured_pieces_labels[1].cget('text') + ' ' + x)
 
     def updateCheck(self, isWhiteChecking):
         self.pieces[('white', 'black')[isWhiteChecking]][0].underCheck = 0
@@ -214,6 +268,3 @@ class Chess:
 root = Tk()
 game_gui = Chess(root)
 root.mainloop()
-
-# TODO: Listbox horizontal
-# TODO: Turns

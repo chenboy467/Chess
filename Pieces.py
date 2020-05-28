@@ -48,7 +48,7 @@ class Piece:
             for i in currentAvailableMoves:
                 if i[0] == piecesDict[('black', 'white')[self.isWhite]][0].pos[0]:
                     if i[1] > piecesDict[('black', 'white')[self.isWhite]][0].pos[1]:
-                        for x in range(i[1], 8):
+                        for x in range(i[1], 9):
                             if (i[0], x) in piecesGridDict:
                                 if ((piecesGridDict[(i[0], x)].name == 'Rook') or (piecesGridDict[(i[0], x)].name == 'Queen')) and piecesGridDict[(i[0], x)].isWhite != self.isWhite:
                                     availableMoves.add(i)
@@ -62,7 +62,7 @@ class Piece:
                         '''for x in range(piecesDict[('black', 'white')[self.isWhite]][0].pos[0] + 1, i[0]):
                             if (x, i[1]) in piecesGridDict:
                                 availableMoves.add(i)'''
-                        for x in range(i[0], 8):
+                        for x in range(i[0], 9):
                             if (x, i[1]) in piecesGridDict:
                                 if ((piecesGridDict[(x, i[1])].name == 'Rook') or (piecesGridDict[(x, i[1])].name == 'Queen')) and piecesGridDict[(x, i[1])].isWhite != self.isWhite:
                                     '''for y in availableMoves:
@@ -87,7 +87,7 @@ class Piece:
                                 '''for x in range(1, abs(i[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                                     if (i[0] - x, i[1] - x) in piecesGridDict:
                                         availableMoves.add(i)'''
-                                for x in range(0, 8):
+                                for x in range(0, 9):
                                     if (i[0] + x, i[1] + x) in piecesGridDict:
                                         if ((piecesGridDict[(i[0] + x, i[1] + x)].name == 'Bishop') or (piecesGridDict[(i[0] + x, i[1] + x)].name == 'Queen')) and piecesGridDict[(i[0] + x, i[1] + x)].isWhite != self.isWhite:
                                             '''for y in availableMoves:
@@ -99,7 +99,7 @@ class Piece:
                                 '''for x in range(1, abs(i[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                                     if (i[0] - x, i[1] + x) in piecesGridDict:
                                         availableMoves.add(i)'''
-                                for x in range(0, 8):
+                                for x in range(0, 9):
                                     if (i[0] + x, i[1] - x) in piecesGridDict:
                                         if ((piecesGridDict[(i[0] + x, i[1] - x)].name == 'Bishop') or (piecesGridDict[(i[0] + x, i[1] - x)].name == 'Queen')) and piecesGridDict[(i[0] + x, i[1] - x)].isWhite != self.isWhite:
                                             '''for y in availableMoves:
@@ -112,7 +112,7 @@ class Piece:
                                 '''for x in range(1, abs(i[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                                     if (i[0] + x, i[1] - x) in piecesGridDict:
                                         availableMoves.add(i)'''
-                                for x in range(0, 8):
+                                for x in range(0, 9):
                                     if (i[0] - x, i[1] + x) in piecesGridDict:
                                         if ((piecesGridDict[(i[0] - x, i[1] + x)].name == 'Bishop') or (piecesGridDict[(i[0] - x, i[1] + x)].name == 'Queen')) and piecesGridDict[(i[0] - x, i[1] + x)].isWhite != self.isWhite:
                                             '''for y in availableMoves:
@@ -124,7 +124,7 @@ class Piece:
                                 '''for x in range(1, abs(i[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                                     if (i[0] + x, i[1] + x) in piecesGridDict:
                                         availableMoves.add(i)'''
-                                for x in range(0, 8):
+                                for x in range(0, 9):
                                     if (i[0] - x, i[1] - x) in piecesGridDict:
                                         if ((piecesGridDict[(i[0] - x, i[1] - x)].name == 'Bishop') or (piecesGridDict[(i[0] - x, i[1] - x)].name == 'Queen')) and piecesGridDict[(i[0] - x, i[1] - x)].isWhite != self.isWhite:
                                             '''for y in availableMoves:
@@ -142,7 +142,7 @@ class Piece:
                 for x in range(piecesDict[('black', 'white')[self.isWhite]][0].pos[1] + 1, self.pos[1]):
                     if (self.pos[0], x) in piecesGridDict:
                         return availableMoves
-                for x in range(self.pos[1] + 1, 8):
+                for x in range(self.pos[1] + 1, 9):
                     if (self.pos[0], x) in piecesGridDict:
                         if ((piecesGridDict[(self.pos[0], x)].name == 'Rook') or (piecesGridDict[(self.pos[0], x)].name == 'Queen')) and piecesGridDict[(self.pos[0], x)].isWhite != self.isWhite:
                             toRemove = set()
@@ -158,6 +158,8 @@ class Piece:
                         return availableMoves
                 for x in range(0, self.pos[1]):
                     if (self.pos[0], x) in piecesGridDict:
+                        print('Removing')
+                        # TODO: Fix pin from bottom
                         if ((piecesGridDict[(self.pos[0], x)].name == 'Rook') or (piecesGridDict[(self.pos[0], x)].name == 'Queen')) and piecesGridDict[(self.pos[0], x)].isWhite != self.isWhite:
                             toRemove = set()
                             for y in availableMoves:
@@ -171,7 +173,7 @@ class Piece:
                 for x in range(piecesDict[('black', 'white')[self.isWhite]][0].pos[0] + 1, self.pos[0]):
                     if (x, self.pos[1]) in piecesGridDict:
                         return availableMoves
-                for x in range(self.pos[0] + 1, 8):
+                for x in range(self.pos[0] + 1, 9):
                     if (x, self.pos[1]) in piecesGridDict:
                         if ((piecesGridDict[(x, self.pos[1])].name == 'Rook') or (piecesGridDict[(x, self.pos[1])].name == 'Queen')) and piecesGridDict[(x, self.pos[1])].isWhite != self.isWhite:
                             toRemove = set()
@@ -202,7 +204,7 @@ class Piece:
                         for x in range(1, abs(self.pos[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                             if (self.pos[0] - x, self.pos[1] - x) in piecesGridDict:
                                 return availableMoves
-                        for x in range(1, 8):
+                        for x in range(1, 9):
                             if (self.pos[0] + x, self.pos[1] + x) in piecesGridDict:
                                 if ((piecesGridDict[(self.pos[0] + x, self.pos[1] + x)].name == 'Bishop') or (piecesGridDict[(self.pos[0] + x, self.pos[1] + x)].name == 'Queen')) and piecesGridDict[(self.pos[0] + x, self.pos[1] + x)].isWhite != self.isWhite:
                                     toRemove = set()
@@ -216,7 +218,7 @@ class Piece:
                         for x in range(1, abs(self.pos[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                             if (self.pos[0] - x, self.pos[1] + x) in piecesGridDict:
                                 return availableMoves
-                        for x in range(1, 8):
+                        for x in range(1, 9):
                             if (self.pos[0] + x, self.pos[1] - x) in piecesGridDict:
                                 if ((piecesGridDict[(self.pos[0] + x, self.pos[1] - x)].name == 'Bishop') or (piecesGridDict[(self.pos[0] + x, self.pos[1] - x)].name == 'Queen')) and piecesGridDict[(self.pos[0] + x, self.pos[1] - x)].isWhite != self.isWhite:
                                     toRemove = set()
@@ -231,7 +233,7 @@ class Piece:
                         for x in range(1, abs(self.pos[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                             if (self.pos[0] + x, self.pos[1] - x) in piecesGridDict:
                                 return availableMoves
-                        for x in range(1, 8):
+                        for x in range(1, 9):
                             if (self.pos[0] - x, self.pos[1] + x) in piecesGridDict:
                                 if ((piecesGridDict[(self.pos[0] - x, self.pos[1] + x)].name == 'Bishop') or (piecesGridDict[(self.pos[0] - x, self.pos[1] + x)].name == 'Queen')) and piecesGridDict[(self.pos[0] - x, self.pos[1] + x)].isWhite != self.isWhite:
                                     toRemove = set()
@@ -245,7 +247,7 @@ class Piece:
                         for x in range(1, abs(self.pos[0] - piecesDict[('black', 'white')[self.isWhite]][0].pos[0])):
                             if (self.pos[0] + x, self.pos[1] + x) in piecesGridDict:
                                 return availableMoves
-                        for x in range(1, 8):
+                        for x in range(1, 9):
                             if (self.pos[0] - x, self.pos[1] - x) in piecesGridDict:
                                 if ((piecesGridDict[(self.pos[0] - x, self.pos[1] - x)].name == 'Bishop') or (piecesGridDict[(self.pos[0] - x, self.pos[1] - x)].name == 'Queen')) and piecesGridDict[(self.pos[0] - x, self.pos[1] - x)].isWhite != self.isWhite:
                                     toRemove = set()
@@ -632,7 +634,6 @@ class Queen(Piece):
         else:
             return (self.checkForPin(tilesList, piecesDict, piecesGridDict, availableMovesDiagonal) | self.checkForPin(tilesList, piecesDict, piecesGridDict, availableMovesStraight)) - toRemoveDiagonal - toRemoveStraight
 
-    # TODO: Queen's getAttackingTiles()
     def getAttackingTiles(self, tilesList, piecesDict):
         attackingTilesDiagonal = set()
         attackingTilesStraight = set()
